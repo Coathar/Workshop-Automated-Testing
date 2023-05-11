@@ -1,0 +1,117 @@
+import 'GameSettings/workshop-island-skrimish.json';
+
+// Import tests
+import 'Tests/SigmaInfiniteFluxFlight.workshop';
+import 'Tests/EchoStickiesDelete.workshop';
+import 'Tests/KirikoCrouchSwiftStep.workshop';
+import 'Tests/KirikoVerticalSwiftStep.workshop';
+
+// Setup tests to run
+globalvar AutomatedTest[] m_Tests = 
+[
+    <AutomatedTest>new SigmaFluxTest(),
+    <AutomatedTest>new EchoStickiesDelete(),
+    <AutomatedTest>new KirikoCrouchSwiftStep(),
+    <AutomatedTest>new KirikoVerticalSwiftStep()
+];
+
+rule: 'Display Help Text'
+Event.OngoingGlobal
+{
+    CreateHudText(null, null, null, "Press Spectate Lock On (default left click) to Start", Location.Right);
+}
+
+rule: 'Run Tests'
+Event.OngoingGlobal
+if (IsButtonHeld(HostPlayer(), Button.Ability2))
+{
+    define testStatus = "Setup";
+    define statusColor = Color.Yellow;
+
+    foreach (AutomatedTest test in m_Tests)
+    {
+        CreateHudText(null, $"Current Test: {test.m_TestName}", testStatus, $"{test.m_TestOutput}", Location.Left, 0, Color.White, statusColor, Color.White, HudTextRev.StringAndColor, Spectators.VisibleAlways);
+        test.Setup();
+        Wait(0.5, WaitBehavior.IgnoreCondition);
+        testStatus = "Running";
+        statusColor = Color.SkyBlue;
+        test.Run();
+        Wait(0.5, WaitBehavior.IgnoreCondition);
+
+        if (test.m_Failed)
+        {
+            testStatus = "Failed";
+            statusColor = Color.Red;
+        }
+        else
+        {
+            testStatus = "Passed";
+            statusColor = Color.Green;
+        }
+
+        test.Cleanup();
+        Wait(1);
+        DestroyAllHudText();
+
+        delete(test);
+    }
+}
+
+class AutomatedTest
+{
+    public String m_TestName;
+    public String m_TestOutput = "";
+    public Boolean m_Failed = false;
+    
+    public virtual void Setup() "Setup"
+    {
+
+    }
+
+    public virtual void Run() "Run"
+    {
+
+    }
+
+    public virtual void Cleanup() "Cleanup"
+    {
+        DestroyAllDummyBots();
+        m_TestOutput = "Complete";
+    }
+
+    void AssertEqual(Any actual, Any expected) "Assert Equal"
+    {
+        if (expected == actual)
+        {
+            LogToInspector($"{m_TestName},PASSED,");
+            return;
+        }
+
+        LogToInspector($"{m_TestName},FAILED,Expected: {expected} but value was {actual}");
+        m_Failed = true;
+    }
+
+    void AssertNotEqual(Any actual, Any expected) "Assert Not Equal"
+    {
+        if (expected != actual)
+        {
+            LogToInspector($"{m_TestName},PASSED,");
+            return;
+        }
+
+        LogToInspector($"{m_TestName},FAILED,Expected: {expected} but value was {actual}");
+        m_Failed = true;
+    }
+
+    void AssertGreater(Number actual, Number expected) "Assert Greater Than Number"
+    {
+        if (actual > expected)
+        {
+            LogToInspector($"{m_TestName},PASSED,");
+            return;
+        }
+
+        LogToInspector($"{m_TestName},FAILED,Expected: {expected} but value was {actual}");
+        m_Failed = true;
+    }
+}

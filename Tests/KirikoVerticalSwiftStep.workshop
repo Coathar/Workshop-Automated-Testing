@@ -1,0 +1,34 @@
+import '../AutomatedTests.workshop';
+
+class KirikoVerticalSwiftStep : AutomatedTest
+{
+    private Player m_Kiriko;
+    private Player m_Ashe;
+
+    public constructor()
+    {
+        m_TestName = "Kiriko Swift Step Vertical";
+    }
+
+    public override void Setup()
+    {
+        m_Kiriko = CreateDummyBot(Hero.Kiriko, Team.Team1, 0, Vector(0, -10, 00));
+        SetGravity(m_Kiriko, 0);
+        m_Ashe = CreateDummyBot(Hero.Ashe, Team.Team1, 1, Vector(0, 0, 0));
+    }
+
+    public override void Run()
+    {
+        m_TestOutput = " ";
+        define originalPosition = PositionOf(m_Kiriko);
+
+        SetFacing(m_Kiriko, DirectionTowards(PositionOf(m_Kiriko), PositionOf(m_Ashe)), Relative.ToWorld);
+
+        Wait(0.5);
+        PressButton(m_Kiriko, Button.Ability1);
+
+        Wait(1);
+
+        AssertGreater(YOf(PositionOf(m_Kiriko)), 1);
+    }
+}

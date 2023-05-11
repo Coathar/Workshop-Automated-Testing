@@ -1,0 +1,40 @@
+import '../AutomatedTests.workshop';
+
+class EchoStickiesDelete : AutomatedTest
+{
+    private Player m_Echo;
+    private Player m_Cassidy;
+
+    public constructor()
+    {
+        m_TestName = "Echo Stickies Auto Delete";
+    }
+
+    public override void Setup()
+    {
+        m_Echo = CreateDummyBot(Hero.Echo, Team.Team1, 0, Vector(0, 0, -10));
+        m_Cassidy = CreateDummyBot(Hero.Cassidy, Team.Team2, 0, Vector(0, 0, 0));
+    }
+
+    public override void Run()
+    {
+        SetFacing(m_Echo, DirectionTowards(PositionOf(m_Echo), PositionOf(m_Cassidy)), Relative.ToWorld);
+
+        Wait(0.5);
+
+        SetUltimateCharge(m_Echo, 100);
+        PressButton(m_Echo, Button.Ultimate);
+
+        Wait(2);
+        Kill(m_Echo);
+        Wait(2);
+        
+        PressButton(m_Echo, Button.SecondaryFire);
+
+        m_TestOutput = "Using Stickies";
+        Wait(3);
+
+        m_TestOutput = "Waiting for deletion";
+        AssertGreater(Health(m_Cassidy), 50);
+    }
+}

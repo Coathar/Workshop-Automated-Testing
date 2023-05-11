@@ -1,0 +1,42 @@
+import '../AutomatedTests.workshop';
+
+class SigmaFluxTest : AutomatedTest
+{
+    private Player m_Sigma;
+    private Player m_Ana;
+
+    public constructor()
+    {
+        m_TestName = "Sigma Infinite Flight";
+    }
+
+    public override void Setup()
+    {
+        m_Sigma = CreateDummyBot(Hero.Sigma, Team.Team1, 0, Vector(0, 0, -10));
+        m_Ana = CreateDummyBot(Hero.Ana, Team.Team2, 0, Vector(0, 0, 0));
+    }
+
+    public override void Run()
+    {
+        SetUltimateCharge(m_Sigma, 100);
+
+        PressButton(m_Sigma, Button.Ultimate);
+        Wait(1);
+        SetFacing(m_Sigma, DirectionTowards(PositionOf(m_Sigma), Vector(0, 0, 0)), Relative.ToWorld);
+        m_TestOutput = "Using first flux";
+
+        Wait(10);
+
+        SetUltimateCharge(m_Sigma, 100);
+        PressButton(m_Sigma, Button.Ultimate);
+        SetFacing(m_Sigma, DirectionTowards(PositionOf(m_Sigma), Vector(0, 100, -10)));
+
+        m_TestOutput = "Using second flux";
+        Wait(6);
+
+        StartHoldingButton(m_Sigma, Button.Jump);
+        Wait(1);
+        AssertGreater(YOf(PositionOf(m_Sigma)), 0);
+        m_TestOutput = " ";
+    }
+}
