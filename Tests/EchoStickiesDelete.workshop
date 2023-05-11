@@ -22,19 +22,20 @@ class EchoStickiesDelete : AutomatedTest
 
         Wait(0.5);
 
+        m_TestOutput = "Using Dupe";
         SetUltimateCharge(m_Echo, 100);
         PressButton(m_Echo, Button.Ultimate);
 
         Wait(2);
         Kill(m_Echo);
-        Wait(2);
-        
-        PressButton(m_Echo, Button.SecondaryFire);
 
         m_TestOutput = "Using Stickies";
-        Wait(3);
+        Wait(2);
 
         m_TestOutput = "Waiting for deletion";
+        PressButton(m_Echo, Button.SecondaryFire);
+        Wait(3);
+
         AssertGreater(Health(m_Cassidy), 50);
     }
 }

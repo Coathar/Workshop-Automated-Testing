@@ -24,7 +24,7 @@ class KirikoCrouchSwiftStep : AutomatedTest
         SetFacing(m_Kiriko, DirectionTowards(PositionOf(m_Kiriko), PositionOf(m_Bastion)), Relative.ToWorld);
         StartHoldingButton(m_Bastion, Button.Crouch);
 
-        Wait(5);
+        Wait(1);
         PressButton(m_Kiriko, Button.Ability1);
 
         Wait(1);

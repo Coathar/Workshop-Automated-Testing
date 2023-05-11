@@ -6,14 +6,9 @@ import 'Tests/EchoStickiesDelete.workshop';
 import 'Tests/KirikoCrouchSwiftStep.workshop';
 import 'Tests/KirikoVerticalSwiftStep.workshop';
 
-// Setup tests to run
-globalvar AutomatedTest[] m_Tests = 
-[
-    <AutomatedTest>new SigmaFluxTest(),
-    <AutomatedTest>new EchoStickiesDelete(),
-    <AutomatedTest>new KirikoCrouchSwiftStep(),
-    <AutomatedTest>new KirikoVerticalSwiftStep()
-];
+globalvar Number m_Passed = 0;
+globalvar Number m_Failed = 0;
+
 
 rule: 'Display Help Text'
 Event.OngoingGlobal
@@ -21,6 +16,7 @@ Event.OngoingGlobal
     CreateHudText(null, null, null, "Press Spectate Lock On (default left click) to Start", Location.Right);
 }
 
+// Ability 2 is triggered by pushing the Spectate Lock On button. 
 rule: 'Run Tests'
 Event.OngoingGlobal
 if (IsButtonHeld(HostPlayer(), Button.Ability2))
@@ -28,25 +24,34 @@ if (IsButtonHeld(HostPlayer(), Button.Ability2))
     define testStatus = "Setup";
     define statusColor = Color.Yellow;
 
-    foreach (AutomatedTest test in m_Tests)
+    DestroyAllHudText();
+    
+    foreach (AutomatedTest test in GetTestsToRun())
     {
-        CreateHudText(null, $"Current Test: {test.m_TestName}", testStatus, $"{test.m_TestOutput}", Location.Left, 0, Color.White, statusColor, Color.White, HudTextRev.StringAndColor, Spectators.VisibleAlways);
+        testStatus = "Setup";
+        test.m_TestOutput = " ";
+        statusColor = Color.Yellow;
+        CreateHudText(null, null, null, $"{test.m_TestName} - {testStatus}", Location.Left, 0, Color.White, Color.White, statusColor, HudTextRev.StringAndColor, Spectators.VisibleAlways);
+        CreateHudText(null, null, null, $"{test.m_TestOutput}", Location.Left, 1, Color.White, Color.White, Color.White, HudTextRev.StringAndColor, Spectators.VisibleAlways);
+
         test.Setup();
-        Wait(0.5, WaitBehavior.IgnoreCondition);
+        Wait(0.5);
         testStatus = "Running";
         statusColor = Color.SkyBlue;
         test.Run();
-        Wait(0.5, WaitBehavior.IgnoreCondition);
+        Wait(0.5);
 
         if (test.m_Failed)
         {
             testStatus = "Failed";
             statusColor = Color.Red;
+            m_Failed++;
         }
         else
         {
             testStatus = "Passed";
             statusColor = Color.Green;
+            m_Passed++;
         }
 
         test.Cleanup();
@@ -55,14 +60,27 @@ if (IsButtonHeld(HostPlayer(), Button.Ability2))
 
         delete(test);
     }
+
+    CreateHudText(null, null, null, $"Passed: {m_Passed}", Location.Left, 0, null, null, Color.Green, HudTextRev.VisibleToSortOrderAndString, Spectators.VisibleAlways);
+    CreateHudText(null, null, null, $"Failed: {m_Failed}", Location.Left, 0, null, null, Color.Red, HudTextRev.VisibleToSortOrderAndString, Spectators.VisibleAlways);
+}
+
+AutomatedTest[] GetTestsToRun()
+{
+    return [
+        <AutomatedTest>new SigmaFluxTest(),
+        <AutomatedTest>new EchoStickiesDelete(),
+        <AutomatedTest>new KirikoCrouchSwiftStep(),
+        <AutomatedTest>new KirikoVerticalSwiftStep()
+    ];
 }
 
 class AutomatedTest
 {
     public String m_TestName;
-    public String m_TestOutput = "";
+    public String m_TestOutput = " ";
     public Boolean m_Failed = false;
-    
+
     public virtual void Setup() "Setup"
     {
 

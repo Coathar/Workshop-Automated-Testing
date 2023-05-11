@@ -9,7 +9,11 @@
         "Skirmish": {
             "Enabled": true,
             "Enabled Maps": [ "Workshop Island" ]
-        }
-        
+        }        
+    },
+    "Lobby": {
+        "Max Team 1 Players": "0",
+        "Max Team 2 Players": "0",
+        "Max Spectators": "12"
     }
 }
